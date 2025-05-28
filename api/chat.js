@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
-  // 设置CORS，允许跨域访问
+  // 设置CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
@@ -22,6 +22,15 @@ export default async function handler(req, res) {
       return;
     }
 
+    // 检查API密钥
+    if (!process.env.CLAUDE_API_KEY) {
+      console.error('缺少CLAUDE_API_KEY环境变量');
+      res.status(500).json({ error: '服务器配置错误' });
+      return;
+    }
+
+    console.log('开始调用Claude API...');
+
     // 调用Claude API
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -31,7 +40,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 300,
         messages: [{
           role: 'user',
@@ -39,31 +48,33 @@ export default async function handler(req, res) {
 - 外表冷酷危险，内心只对特定人温柔
 - 语言风格：低沉磁性，称呼对方"小猫咪"  
 - 行为特征：强势但不伤害，保护欲强
-- 展现权力与温柔的反差魅力
 
 当前状态：
-- 信任度：${gameState.trust_level}/100
-- 亲密度：${gameState.intimacy_level}/100
-- 轮次：${gameState.dialogue_rounds}
+- 信任度：${gameState?.trust_level || 0}/100
+- 亲密度：${gameState?.intimacy_level || 0}/100
+- 轮次：${gameState?.dialogue_rounds || 0}
 
 用户说："${message}"
 
-请以陆沉夜身份自然回应，体现人设魅力。回应要简洁有力，不超过100字。`
+请以陆沉夜身份简短回应（不超过50字）。`
         }]
       })
     });
 
+    console.log('Claude API响应状态:', claudeResponse.status);
+
     if (!claudeResponse.ok) {
-      const errorData = await claudeResponse.json();
+      const errorData = await claudeResponse.text();
       console.error('Claude API错误:', errorData);
-      throw new Error('Claude API调用失败');
+      res.status(500).json({ error: 'AI服务暂时不可用，请稍后重试' });
+      return;
     }
 
     const aiData = await claudeResponse.json();
     const aiResponse = aiData.content[0].text;
 
-    // 简单的数值更新逻辑
-    const newGameState = updateGameState(message, gameState);
+    // 更新游戏状态
+    const newGameState = updateGameState(message, gameState || {});
 
     res.status(200).json({
       response: aiResponse,
@@ -72,17 +83,20 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('API错误:', error);
-    res.status(500).json({ error: '服务器错误，请稍后重试' });
+    console.error('API处理错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 }
 
-// 简化的数值更新函数
+// 游戏状态更新函数
 function updateGameState(message, currentState) {
-  const newState = { ...currentState };
-  newState.dialogue_rounds += 1;
+  const newState = {
+    trust_level: currentState.trust_level || 0,
+    intimacy_level: currentState.intimacy_level || 0,
+    danger_awareness: currentState.danger_awareness || 50,
+    dialogue_rounds: (currentState.dialogue_rounds || 0) + 1
+  };
 
-  // 根据用户消息内容更新数值
   const msg = message.toLowerCase();
   
   if (msg.includes('谢谢') || msg.includes('感谢')) {
@@ -91,9 +105,6 @@ function updateGameState(message, currentState) {
   } else if (msg.includes('害怕') || msg.includes('可怕')) {
     newState.danger_awareness = Math.min(100, newState.danger_awareness + 10);
     newState.trust_level = Math.max(0, newState.trust_level - 3);
-  } else if (msg.includes('为什么') || msg.includes('你是谁')) {
-    newState.trust_level = Math.min(100, newState.trust_level + 5);
-    newState.intimacy_level = Math.min(100, newState.intimacy_level + 3);
   } else {
     newState.trust_level = Math.min(100, newState.trust_level + 3);
     newState.intimacy_level = Math.min(100, newState.intimacy_level + 2);
