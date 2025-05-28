@@ -23,9 +23,8 @@ export default async function handler(req, res) {
     }
 
     // 检查API密钥
-    if (!process.env.CLAUDE_API_KEY) {
-      console.error('缺少CLAUDE_API_KEY环境变量');
-      res.status(500).json({ error: '服务器配置错误' });
+    if (!process.env.ANTHROPIC_API_KEY) {
+  console.error('缺少ANTHROPIC_API_KEY环境变量');
       return;
     }
 
@@ -35,7 +34,7 @@ export default async function handler(req, res) {
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.CLAUDE_API_KEY}`,
+        'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
         'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01'
       },
