@@ -63,12 +63,13 @@ export default async function handler(req, res) {
 
     console.log('Claude API响应状态:', claudeResponse.status);
 
-    if (!claudeResponse.ok) {
-      const errorData = await claudeResponse.text();
-      console.error('Claude API错误:', errorData);
-      res.status(500).json({ error: 'AI服务暂时不可用，请稍后重试' });
-      return;
-    }
+if (!claudeResponse.ok) {
+  const errorText = await claudeResponse.text();
+  console.error('Claude API 错误响应状态:', claudeResponse.status);
+  console.error('Claude API 错误响应内容:', errorText);
+  res.status(500).json({ error: 'AI服务不可用', detail: errorText });
+  return;
+}
 
     const aiData = await claudeResponse.json();
     const aiResponse = aiData.content[0].text;
