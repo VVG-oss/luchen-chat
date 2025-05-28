@@ -12,235 +12,411 @@
         }
 
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 10px;
-            height: 100vh;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                0 8px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 头部 */
         .header {
-            background: linear-gradient(90deg, #2c3e50, #34495e);
-            padding: 15px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            padding: 24px;
             text-align: center;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-30px, -30px) rotate(360deg); }
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .character-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
         }
 
         .character-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ecf0f1;
-            margin-bottom: 5px;
-        }
-
-        .character-subtitle {
             font-size: 14px;
-            color: #bdc3c7;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
         }
 
-        .status-bar {
-            background: rgba(44, 62, 80, 0.8);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-            flex-wrap: wrap;
+        /* 状态卡片 */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 20px;
+            background: #f8f9fa;
         }
 
-        .status-item {
+        .status-card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            margin: 0 auto 8px;
             display: flex;
             align-items: center;
-            gap: 5px;
-            margin: 2px;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .trust .status-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .intimacy .status-icon {
+            background: linear-gradient(135deg, #ff9ff3, #f368e0);
+        }
+
+        .danger .status-icon {
+            background: linear-gradient(135deg, #feca57, #ff9f43);
+        }
+
+        .rounds .status-icon {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
         }
 
         .status-value {
-            font-weight: bold;
-            color: #e74c3c;
-            background: rgba(231, 76, 60, 0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
         }
 
-        .chat-area {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-            padding: 15px;
+        .status-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* 聊天区域 */
+        .chat-container {
+            height: 400px;
             overflow-y: auto;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            background: white;
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f2f6;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 2px;
         }
 
         .message {
-            margin-bottom: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            max-width: 85%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease-in;
+            margin-bottom: 16px;
+            animation: slideUp 0.3s ease-out;
         }
 
-        .message.ai {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            border-left: 4px solid #e74c3c;
-            margin-right: auto;
-        }
-
-        .message.user {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            margin-left: auto;
-            text-align: right;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.system {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid rgba(231, 76, 60, 0.5);
             text-align: center;
-            font-style: italic;
-            margin: 10px auto;
-            max-width: 90%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            margin: 20px 0;
         }
 
-        .input-container {
-            background: rgba(44, 62, 80, 0.8);
-            padding: 15px;
-            border-radius: 10px;
+        .message.ai {
             display: flex;
-            gap: 10px;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .message.user {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .ai .message-avatar {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .user .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .message-content {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 16px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .loading .message-content {
+            background: #e9ecef;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* 输入区域 */
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
         }
 
         .input-field {
             flex: 1;
-            padding: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 16px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            font-size: 14px;
+            resize: none;
             outline: none;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            font-family: inherit;
         }
 
         .input-field:focus {
-            border-color: #e74c3c;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .input-field::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .send-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
+        .send-button {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
+            color: white;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
-            min-width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .send-btn:hover:not(:disabled) {
+        .send-button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
         }
 
-        .send-btn:disabled {
-            opacity: 0.6;
+        .send-button:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        .loading {
-            text-align: center;
-            color: #bdc3c7;
-            font-style: italic;
-            margin: 10px 0;
-        }
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+                border-radius: 0;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+            .chat-container {
+                flex: 1;
+            }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 5px;
+            .status-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                padding: 16px;
             }
-            
-            .status-bar {
-                font-size: 12px;
+
+            .status-card {
+                padding: 12px 8px;
             }
-            
-            .character-title {
-                font-size: 20px;
+
+            .status-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
             }
-            
-            .message {
-                max-width: 95%;
+
+            .status-value {
+                font-size: 16px;
+            }
+
+            .status-label {
+                font-size: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
+        <!-- 头部 -->
         <div class="header">
-            <div class="character-title">陆沉夜</div>
-            <div class="character-subtitle">地下世界的绝对王者</div>
+            <div class="avatar">👑</div>
+            <div class="character-name">陆沉夜</div>
+            <div class="character-title">地下世界的绝对王者</div>
         </div>
 
-        <div class="status-bar">
-            <div class="status-item">
-                <span>信任度:</span>
-                <span class="status-value" id="trustLevel">0</span>
+        <!-- 状态区域 -->
+        <div class="status-grid">
+            <div class="status-card trust">
+                <div class="status-icon">❤️</div>
+                <div class="status-value" id="trustLevel">0</div>
+                <div class="status-label">信任度</div>
             </div>
-            <div class="status-item">
-                <span>亲密度:</span>
-                <span class="status-value" id="intimacyLevel">0</span>
+            <div class="status-card intimacy">
+                <div class="status-icon">💕</div>
+                <div class="status-value" id="intimacyLevel">0</div>
+                <div class="status-label">亲密度</div>
             </div>
-            <div class="status-item">
-                <span>危险感知:</span>
-                <span class="status-value" id="dangerLevel">50</span>
+            <div class="status-card danger">
+                <div class="status-icon">⚡</div>
+                <div class="status-value" id="dangerLevel">50</div>
+                <div class="status-label">危险值</div>
             </div>
-            <div class="status-item">
-                <span>轮次:</span>
-                <span class="status-value" id="roundCount">0</span>
+            <div class="status-card rounds">
+                <div class="status-icon">🎯</div>
+                <div class="status-value" id="roundCount">0</div>
+                <div class="status-label">轮次</div>
             </div>
         </div>
 
-        <div class="chat-area" id="chatArea">
+        <!-- 聊天区域 -->
+        <div class="chat-container" id="chatArea">
             <div class="message system">
                 <strong>【血色救赎】</strong><br>
                 深夜2点的老城区小巷，你被三个不明身份的人追杀。就在绝望时刻，一个穿着昂贵黑色风衣的男人出现，以极其优雅却致命的方式解决了追杀者。月光下，你看清了他深邃的面容和冷漠的深灰色眼睛。
             </div>
             
             <div class="message ai">
-                <em>*他擦拭着手上的血迹，嘴角带着玩味的笑意*</em><br><br>
-                "有趣的小东西...你的眼中有恐惧，但更多的是好奇。"<br><br>
-                <em>*他的声音低沉磁性，在寂静的夜里显得格外危险而迷人*</em>
+                <div class="message-avatar">👑</div>
+                <div class="message-content">
+                    <em>*他擦拭着手上的血迹，嘴角带着玩味的笑意*</em><br><br>
+                    "有趣的小东西...你的眼中有恐惧，但更多的是好奇。"<br><br>
+                    <em>*他的声音低沉磁性，在寂静的夜里显得格外危险而迷人*</em>
+                </div>
             </div>
         </div>
 
+        <!-- 输入区域 -->
         <div class="input-container">
-            <input type="text" class="input-field" id="userInput" placeholder="输入你的回应..." maxlength="200">
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+            <div class="input-wrapper">
+                <textarea 
+                    class="input-field" 
+                    id="userInput" 
+                    placeholder="输入你的回应..." 
+                    rows="1"
+                    maxlength="200"></textarea>
+                <button class="send-button" id="sendBtn" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
         </div>
     </div>
 
@@ -254,6 +430,13 @@
             dialogue_rounds: 0
         };
 
+        // 自动调整输入框高度
+        const input = document.getElementById('userInput');
+        input.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
         // 发送消息
         async function sendMessage() {
             const input = document.getElementById('userInput');
@@ -264,6 +447,7 @@
             // 添加用户消息
             addMessage(message, 'user');
             input.value = '';
+            input.style.height = 'auto';
             
             // 显示加载状态
             setLoading(true);
@@ -319,10 +503,22 @@
             messageDiv.className = `message ${type}`;
             
             if (type === 'ai') {
-                // AI消息支持HTML格式
-                messageDiv.innerHTML = content;
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">👑</div>
+                    <div class="message-content">${content}</div>
+                `;
+            } else if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">😊</div>
+                    <div class="message-content">${content}</div>
+                `;
+            } else if (type === 'loading') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">👑</div>
+                    <div class="message-content">正在思考中...</div>
+                `;
             } else {
-                messageDiv.textContent = content;
+                messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
             }
             
             chatArea.appendChild(messageDiv);
@@ -336,10 +532,9 @@
             
             sendBtn.disabled = loading;
             userInput.disabled = loading;
-            sendBtn.textContent = loading ? '处理中...' : '发送';
             
             if (loading) {
-                addMessage('陆沉夜正在思考...', 'loading');
+                addMessage('', 'loading');
             } else {
                 // 移除加载消息
                 const loadingMsg = document.querySelector('.message.loading');
@@ -359,7 +554,8 @@
 
         // 回车发送消息
         document.getElementById('userInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         });
