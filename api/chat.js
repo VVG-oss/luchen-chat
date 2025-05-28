@@ -22,17 +22,19 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 调用OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // 调用Claude API
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${process.env.CLAUDE_API_KEY}`,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'claude-3-sonnet-20240229',
+        max_tokens: 300,
         messages: [{
-          role: 'system',
+          role: 'user',
           content: `你是陆沉夜，32岁地下世界王者。人设特点：
 - 外表冷酷危险，内心只对特定人温柔
 - 语言风格：低沉磁性，称呼对方"小猫咪"  
@@ -44,22 +46,21 @@ export default async function handler(req, res) {
 - 亲密度：${gameState.intimacy_level}/100
 - 轮次：${gameState.dialogue_rounds}
 
-请以陆沉夜身份自然回应，体现人设魅力。`
-        }, {
-          role: 'user',
-          content: message
-        }],
-        temperature: 0.8,
-        max_tokens: 300
+用户说："${message}"
+
+请以陆沉夜身份自然回应，体现人设魅力。回应要简洁有力，不超过100字。`
+        }]
       })
     });
 
-    if (!openaiResponse.ok) {
-      throw new Error('OpenAI API调用失败');
+    if (!claudeResponse.ok) {
+      const errorData = await claudeResponse.json();
+      console.error('Claude API错误:', errorData);
+      throw new Error('Claude API调用失败');
     }
 
-    const aiData = await openaiResponse.json();
-    const aiResponse = aiData.choices[0].message.content;
+    const aiData = await claudeResponse.json();
+    const aiResponse = aiData.content[0].text;
 
     // 简单的数值更新逻辑
     const newGameState = updateGameState(message, gameState);
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       response: aiResponse,
       gameState: newGameState,
-      isGameEnd: newGameState.dialogue_rounds >= 10
+      isGameEnd: newGameState.dialogue_rounds >= 15
     });
 
   } catch (error) {
