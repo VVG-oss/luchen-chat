@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陆沉夜 - 地下王者</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .character-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ecf0f1;
+            margin-bottom: 5px;
+        }
+
+        .character-subtitle {
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+
+        .status-bar {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px;
+        }
+
+        .status-value {
+            font-weight: bold;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .chat-area {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.ai {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-left: 4px solid #e74c3c;
+            margin-right: auto;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.system {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            text-align: center;
+            font-style: italic;
+            margin: 10px auto;
+            max-width: 90%;
+        }
+
+        .input-container {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #e74c3c;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 80px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #bdc3c7;
+            font-style: italic;
+            margin: 10px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .status-bar {
+                font-size: 12px;
+            }
+            
+            .character-title {
+                font-size: 20px;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="character-title">陆沉夜</div>
+            <div class="character-subtitle">地下世界的绝对王者</div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span>信任度:</span>
+                <span class="status-value" id="trustLevel">0</span>
+            </div>
+            <div class="status-item">
+                <span>亲密度:</span>
+                <span class="status-value" id="intimacyLevel">0</span>
+            </div>
+            <div class="status-item">
+                <span>危险感知:</span>
+                <span class="status-value" id="dangerLevel">50</span>
+            </div>
+            <div class="status-item">
+                <span>轮次:</span>
+                <span class="status-value" id="roundCount">0</span>
+            </div>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="message system">
+                <strong>【血色救赎】</strong><br>
+                深夜2点的老城区小巷，你被三个不明身份的人追杀。就在绝望时刻，一个穿着昂贵黑色风衣的男人出现，以极其优雅却致命的方式解决了追杀者。月光下，你看清了他深邃的面容和冷漠的深灰色眼睛。
+            </div>
+            
+            <div class="message ai">
+                <em>*他擦拭着手上的血迹，嘴角带着玩味的笑意*</em><br><br>
+                "有趣的小东西...你的眼中有恐惧，但更多的是好奇。"<br><br>
+                <em>*他的声音低沉磁性，在寂静的夜里显得格外危险而迷人*</em>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" class="input-field" id="userInput" placeholder="输入你的回应..." maxlength="200">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            trust_level: 0,
+            intimacy_level: 0,
+            danger_awareness: 50,
+            current_chapter_id: 1,
+            dialogue_rounds: 0
+        };
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // 添加用户消息
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // 显示加载状态
+            setLoading(true);
+            
+            try {
+                // 调用API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        gameState: gameState
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API调用失败');
+                }
+                
+                const data = await response.json();
+                
+                // 显示AI回应
+                addMessage(data.response, 'ai');
+                
+                // 更新游戏状态
+                if (data.gameState) {
+                    gameState = { ...gameState, ...data.gameState };
+                    updateStatusDisplay();
+                }
+                
+                // 检查游戏结束
+                if (data.isGameEnd) {
+                    const endingText = data.ending === 'true_love' ? '真爱结局' : '普通结局';
+                    addMessage(`🎉 游戏结束 - ${endingText}`, 'system');
+                    document.getElementById('sendBtn').disabled = true;
+                    document.getElementById('userInput').disabled = true;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('连接失败，请稍后重试...', 'system');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(content, type) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            if (type === 'ai') {
+                // AI消息支持HTML格式
+                messageDiv.innerHTML = content;
+            } else {
+                messageDiv.textContent = content;
+            }
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // 设置加载状态
+        function setLoading(loading) {
+            const sendBtn = document.getElementById('sendBtn');
+            const userInput = document.getElementById('userInput');
+            
+            sendBtn.disabled = loading;
+            userInput.disabled = loading;
+            sendBtn.textContent = loading ? '处理中...' : '发送';
+            
+            if (loading) {
+                addMessage('陆沉夜正在思考...', 'loading');
+            } else {
+                // 移除加载消息
+                const loadingMsg = document.querySelector('.message.loading');
+                if (loadingMsg) {
+                    loadingMsg.remove();
+                }
+            }
+        }
+
+        // 更新状态显示
+        function updateStatusDisplay() {
+            document.getElementById('trustLevel').textContent = gameState.trust_level || 0;
+            document.getElementById('intimacyLevel').textContent = gameState.intimacy_level || 0;
+            document.getElementById('dangerLevel').textContent = gameState.danger_awareness || 50;
+            document.getElementById('roundCount').textContent = gameState.dialogue_rounds || 0;
+        }
+
+        // 回车发送消息
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('陆沉夜对话系统已启动');
+            updateStatusDisplay();
+        });
+    </script>
+</body>
+</html>
