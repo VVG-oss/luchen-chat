@@ -1,0 +1,8 @@
+{
+  "name": "luchen-chat",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'"
+  }
+}
