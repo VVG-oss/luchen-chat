@@ -23,8 +23,9 @@ export default async function handler(req, res) {
     }
 
     // 检查API密钥
-    if (!process.env.ANTHROPIC_API_KEY) {
-  console.error('缺少ANTHROPIC_API_KEY环境变量');
+    if (!process.env.CLAUDE_API_KEY) {
+      console.error('缺少CLAUDE_API_KEY环境变量');
+      res.status(500).json({ error: '服务器配置错误' });
       return;
     }
 
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
+        'Authorization': `Bearer ${process.env.CLAUDE_API_KEY}`,
         'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01'
       },
@@ -62,13 +63,12 @@ export default async function handler(req, res) {
 
     console.log('Claude API响应状态:', claudeResponse.status);
 
-if (!claudeResponse.ok) {
-  const errorText = await claudeResponse.text();
-  console.error('Claude API 错误响应状态:', claudeResponse.status);
-  console.error('Claude API 错误响应内容:', errorText);
-  res.status(500).json({ error: 'AI服务不可用', detail: errorText });
-  return;
-}
+    if (!claudeResponse.ok) {
+      const errorData = await claudeResponse.text();
+      console.error('Claude API错误:', errorData);
+      res.status(500).json({ error: 'AI服务暂时不可用，请稍后重试' });
+      return;
+    }
 
     const aiData = await claudeResponse.json();
     const aiResponse = aiData.content[0].text;
